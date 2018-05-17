@@ -380,7 +380,7 @@ this.facade.registerOnEvent(ORYX.CONFIG.EVENT_DO_UPDATE,this.handleEventDoUpdate
 this.facade.registerOnEvent(ORYX.CONFIG.EVENT_DO_CHECKSAVE,this.handleEventDoCheckSave.bind(this));
 this.facade.registerOnEvent(ORYX.CONFIG.EVENT_CANCEL_SAVE,this.handleEventCancelSave.bind(this));
 this.facade.registerOnEvent(ORYX.CONFIG.EVENT_DO_RELOAD,this.handleEventDoRealod.bind(this));
-this.facade.registerOnEvent(ORYX.CONFIG.EVENT_LOADED,this.handleOpenXMLEditor.bind(this));
+this.facade.registerOnEvent(ORYX.CONFIG.EVENT_LOADED,this.handlerErrorsAndUnknownExporter.bind(this));
 this.facade.registerOnEvent(ORYX.CONFIG.EVENT_UPDATE_LOCK,this.handleEventUpdateLock.bind(this));
 window.onunload=this.unloadWindow.bind(this)
 },handleEventUpdateLock:function(){if(typeof parent.acquireLock==="function"){if(this.editorLocked&&!parent.isLockedByCurrentUser()){this.editorLocked=false
@@ -397,10 +397,23 @@ this.save(true)
 this.save(false)
 },handleEventDoCheckSave:function(a){this.save(true,a.pathuri)
 },handleEventCancelSave:function(){this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"info",msg:ORYX.I18N.Save.saveCancelled,title:""})
-},handleOpenXMLEditor:function(){if(ORYX.LOADING_ERRORS==true){Ext.MessageBox.confirm("Unable to open Process","Open Process Sources with the XML Editor?",function(a){if(a=="yes"){parent.designeropeninxmleditortab(ORYX.UUID)
+},handlerErrorsAndUnknownExporter:function(){if(ORYX.LOADING_ERRORS==true){Ext.MessageBox.confirm("Unable to open Process","Open Process Sources with the XML Editor?",function(h){if(h=="yes"){parent.designeropeninxmleditortab(ORYX.UUID)
 }}.bind(this))
-}ORYX.LOADING_ERRORS=false
-},handleEventDoRealod:function(){this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"info",msg:ORYX.I18N.Save.processReloading,title:""});
+}ORYX.LOADING_ERRORS=false;
+try{var b=ORYX.EDITOR.getSerializedJSON();
+var a=jsonPath(b.evalJSON(),"$.properties.exporter");
+if(a&&a!="jBPM Designer"){if(!ORYX.JSON_UPDATED){this.facade.setSelection(this.facade.getCanvas().getChildShapes(true));
+var g=ORYX.EDITOR.getSerializedJSON();
+var c=this.facade.getSelection();
+var e=new ORYX.Plugins.Edit.ClipBoard();
+e.refresh(c,this.getAllShapesToConsider(c,true));
+var f=new ORYX.Plugins.Edit.DeleteCommand(e,this.facade);
+this.facade.executeCommands([f]);
+this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"info",msg:ORYX.I18N.view.exporterUpdate,title:""});
+this.facade.importJSON(g);
+ORYX.JSON_UPDATED=true
+}}}catch(d){ORYX.LOG.error(d)
+}},handleEventDoRealod:function(){this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"info",msg:ORYX.I18N.Save.processReloading,title:""});
 new Ajax.Request(ORYX.CONFIG.UUID_URL(),{encoding:"UTF-8",method:"GET",onSuccess:function(b){response=b.responseText;
 try{if(response.length!=0){if(response.startsWith("error:")){this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"error",msg:ORYX.I18N.Save.unableReloadContent,title:""})
 }else{this.updateProcessOnReload(response.evalJSON())
@@ -490,7 +503,30 @@ this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"success"
 }catch(b){this.facade.importJSON(currentJSON);
 this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"error",msg:ORYX.I18N.Save.reloadFail,title:""})
 }}else{this.facade.raiseEvent({type:ORYX.CONFIG.EVENT_NOTIFICATION_SHOW,ntype:"error",msg:ORYX.I18N.Save.processReloadedInvalid,title:""})
-}}});
+}},getAllShapesToConsider:function(b,d){var a=[];
+var c=[];
+b.each(function(f){isChildShapeOfAnother=b.any(function(i){return i.hasChildShape(f)
+});
+if(isChildShapeOfAnother){return
+}a.push(f);
+if(f instanceof ORYX.Core.Node){var h=f.getOutgoingNodes();
+h=h.findAll(function(i){return !b.include(i)
+});
+a=a.concat(h)
+}c=c.concat(f.getChildShapes(true));
+if(d&&!(f instanceof ORYX.Core.Edge)){var g=f.getIncomingShapes().concat(f.getOutgoingShapes());
+g.each(function(i){if(i instanceof ORYX.Core.Edge&&i.properties["oryx-conditionexpression"]&&i.properties["oryx-conditionexpression"]!=""){return
+}a.push(i)
+}.bind(this))
+}}.bind(this));
+var e=this.facade.getCanvas().getChildEdges().select(function(f){if(a.include(f)){return false
+}if(f.getAllDockedShapes().size()===0){return false
+}return f.getAllDockedShapes().all(function(g){return g instanceof ORYX.Core.Edge||c.include(g)
+})
+});
+a=a.concat(e);
+return a
+}});
 if(!ORYX.Plugins){ORYX.Plugins=new Object()
 }ORYX.Plugins.ShapeMenuPlugin={construct:function(c){this.facade=c;
 this.alignGroups=new Hash();
@@ -1258,13 +1294,13 @@ if(d.length>0){for(i=0;
 i<d.length;
 i++){var c=d[i];
 if(c.startsWith("[din]")){c=c.substring(5,c.length);
-if(c.includes("=")){var b=c.split("=");
+if(c.indexOf("=")>=0){var b=c.split("=");
 var f;
 var h;
 if(b.length>1){f=b[1]
 }if(b.length>0){h=b[0].toLowerCase();
 g[h]=f
-}}else{if(c.includes("->")){var b=c.split("->");
+}}else{if(c.indexOf("->")>=0){var b=c.split("->");
 var f;
 var h;
 if(b.length>1){f=b[0];
@@ -1304,7 +1340,8 @@ l++){if(n[l].startsWith("caseFile_")){h+=n[l]+","
 }}}})
 }if(h&&h.length>0){b=b+g+h
 }if(e&&e.length>0){b=b+f+e
-}return b
+}else{if(f&&f.length>0){b=b+f
+}}return b
 },getParentVars:function(c){var d="";
 if(c){if(c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#MultipleInstanceSubprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#Subprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#EventSubprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#AdHocSubprocess"){var f=c.properties["oryx-vardefs"];
 if(f&&f.length>0){d=d+this.sortVarsString(f)
@@ -1369,9 +1406,9 @@ var e=h+"="+a;
 var k="[din]"+a+"->"+h;
 var l="[din]"+h+"="+b;
 var p;
-if(m!==undefined&&m.length>0){if(m.includes(f)){p=m.replace(f,l)
-}else{if(m.includes(e+",")||m.endsWith(e)){p=m.replace(e,l)
-}else{if(m.includes(k)){p=m.replace(k,l)
+if(m!==undefined&&m.length>0){if(m.indexOf(f)>=0){p=m.replace(f,l)
+}else{if(m.indexOf(e+",")>=0||m.endsWith(e)){p=m.replace(e,l)
+}else{if(m.indexOf(k)>=0){p=m.replace(k,l)
 }else{p=m+","+l
 }}}}else{p=l
 }var d=new Hash();

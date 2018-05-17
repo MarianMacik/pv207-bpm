@@ -104,13 +104,13 @@ if(d.length>0){for(i=0;
 i<d.length;
 i++){var c=d[i];
 if(c.startsWith("[din]")){c=c.substring(5,c.length);
-if(c.includes("=")){var b=c.split("=");
+if(c.indexOf("=")>=0){var b=c.split("=");
 var f;
 var h;
 if(b.length>1){f=b[1]
 }if(b.length>0){h=b[0].toLowerCase();
 g[h]=f
-}}else{if(c.includes("->")){var b=c.split("->");
+}}else{if(c.indexOf("->")>=0){var b=c.split("->");
 var f;
 var h;
 if(b.length>1){f=b[0];
@@ -150,7 +150,8 @@ l++){if(n[l].startsWith("caseFile_")){h+=n[l]+","
 }}}})
 }if(h&&h.length>0){b=b+g+h
 }if(e&&e.length>0){b=b+f+e
-}return b
+}else{if(f&&f.length>0){b=b+f
+}}return b
 },getParentVars:function(c){var d="";
 if(c){if(c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#MultipleInstanceSubprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#Subprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#EventSubprocess"||c._stencil._jsonStencil.id=="http://b3mn.org/stencilset/bpmn2.0#AdHocSubprocess"){var f=c.properties["oryx-vardefs"];
 if(f&&f.length>0){d=d+this.sortVarsString(f)
@@ -215,9 +216,9 @@ var e=h+"="+a;
 var k="[din]"+a+"->"+h;
 var l="[din]"+h+"="+b;
 var p;
-if(m!==undefined&&m.length>0){if(m.includes(f)){p=m.replace(f,l)
-}else{if(m.includes(e+",")||m.endsWith(e)){p=m.replace(e,l)
-}else{if(m.includes(k)){p=m.replace(k,l)
+if(m!==undefined&&m.length>0){if(m.indexOf(f)>=0){p=m.replace(f,l)
+}else{if(m.indexOf(e+",")>=0||m.endsWith(e)){p=m.replace(e,l)
+}else{if(m.indexOf(k)>=0){p=m.replace(k,l)
 }else{p=m+","+l
 }}}}else{p=l
 }var d=new Hash();

@@ -742,6 +742,30 @@
 					"optional":true
 				},
 				{
+                    "id":"exporter",
+                    "type":"String",
+                    "title":"Exporter",
+                    "value":"",
+                    "description":"Exporter",
+                    "description_ja":"",
+                    "readonly":true,
+                    "optional":true,
+                    "hidden":true,
+                    "visible":false
+                },
+                {
+                    "id":"exporterversion",
+                    "type":"String",
+                    "title":"Exporter Version",
+                    "value":"",
+                    "description":"Exporter Version",
+                    "description_ja":"",
+                    "readonly":true,
+                    "optional":true,
+                    "hidden":true,
+                    "visible":false
+                },
+				{
                           "id":"customdescription",
                           "type":"TextExpression",
                           "title":"Process Instance Description",
@@ -3298,6 +3322,18 @@
 				"fromtoall"
 			],
 			"properties": [
+			    $bopen$
+                  "id":"customsladuedate",
+                  "type":"TextExpression",
+                  "title":"SLA Due Date",
+                  "value":"",
+                  "description":"SLA Due Date",
+                  "description_ja":"",
+                  "readonly":false,
+                  "optional":true,
+                  "fortasktypes":"Milestone",
+                  "extra":true,
+                $bclose$,
 				$bopen$
 					"id":"bgcolor",
 					"type":"Color",
@@ -10258,20 +10294,25 @@
 							"value": "java"
 						},
 						{
-                                                        "id": "c2",
-                                                        "title":"javascript",
-                                                        "value":"javascript"
-                                                },
-                        			{
-                            				"id": "c3",
-                            				"title": "mvel",
-                            				"value": "mvel"
-                        			},
+                            "id": "c2",
+                            "title":"javascript",
+                            "value":"javascript"
+                        },
+                        {
+                            "id": "c3",
+                            "title": "mvel",
+                            "value": "mvel"
+                        },
 						{
 							"id": "c4",
 							"title": "drools",
 							"value": "drools"
-						}    
+						},
+                        {
+                            "id": "c5",
+                            "title": "FEEL",
+                            "value": "FEEL"
+                        }
 					]  
 				},
 				{

@@ -15,8 +15,8 @@ Os-Name: Linux
 Scm-Url: https://github.com/kiegroup/droolsjbpm-build-bootstrap/kie-wb
  -distributions/kie-wb-parent/kie-wb-distribution-wars/kie-wb
 Implementation-Vendor: JBoss by Red Hat
-Os-Version: 3.10.0-693.21.1.el7.x86_64
-Scm-Revision: 01a66aa9b9d7336c661aa53287baca810d9d7467
+Os-Version: 3.10.0-862.2.3.el7.x86_64
+Scm-Revision: 23fb09bf79bd93ed46b275413d5868aceb38907a
 Created-By: Apache Maven 3.5.2
 Build-Jdk: 1.8.0_152
 Specification-Version: 7.8
